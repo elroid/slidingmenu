@@ -5,6 +5,7 @@ import java.util.List;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.os.Build;
 import android.support.v4.view.KeyEventCompat;
@@ -15,14 +16,7 @@ import android.support.v4.view.ViewConfigurationCompat;
 import android.util.AttributeSet;
 import android.util.FloatMath;
 import android.util.Log;
-import android.view.FocusFinder;
-import android.view.KeyEvent;
-import android.view.MotionEvent;
-import android.view.SoundEffectConstants;
-import android.view.VelocityTracker;
-import android.view.View;
-import android.view.ViewConfiguration;
-import android.view.ViewGroup;
+import android.view.*;
 import android.view.animation.Interpolator;
 import android.widget.Scroller;
 
@@ -481,9 +475,14 @@ public class CustomViewAbove extends ViewGroup
 
 	@Override
 	protected void onLayout(boolean changed, int l, int t, int r, int b) {
-		final int width = r - l;
-		final int height = b - t;
-		mContent.layout(0, 0, width, height);
+		try {
+			final int width = r - l;
+			final int height = b - t;
+			mContent.layout(0, 0, width, height);
+		}
+		catch(Exception e) {
+			Log.w(e.getMessage(), e);
+		}
 	}
 
 	public void setAboveOffset(int i) {
@@ -583,13 +582,25 @@ public class CustomViewAbove extends ViewGroup
 		return mTouchMode;
 	}
 
+	private int secondaryMenuTouchMode;
+
+	public void setSecondaryMenuTouchMode(int secondaryMenuTouchMode) {
+		this.secondaryMenuTouchMode = secondaryMenuTouchMode;
+	}
+
 	private boolean thisTouchAllowed(MotionEvent ev) {
 		int x = (int) (ev.getX() + mScrollX);
+		//Log.i("Slide", "thisTouchAllowed(MotionEvent ev) x: "+x);
 		if(isMenuOpen()){
 			return mViewBehind.menuOpenTouchAllowed(mContent, mCurItem, x);
 		}
 		else {
-			switch(mTouchMode) {
+			int touchMode = mTouchMode;
+			int centre = getScreenWidth(getContext())/2;
+			//Log.i("Slide", "(above) x(" + x + ") centre(" + centre + ")");
+			
+			if(x > centre) touchMode = secondaryMenuTouchMode;
+			switch(touchMode) {
 				case SlidingMenu.TOUCHMODE_FULLSCREEN:
 					return !isInIgnoredView(ev);
 				case SlidingMenu.TOUCHMODE_NONE:
@@ -599,6 +610,34 @@ public class CustomViewAbove extends ViewGroup
 			}
 		}
 		return false;
+	}
+
+	public static int getScreenWidth(Context ctx) {
+		return getScreenDim(ctx, true);
+	}
+
+	public static int getScreenHeight(Context ctx) {
+		return getScreenDim(ctx, false);
+	}
+
+	private static int getScreenDim(Context ctx, boolean width) {
+		try {
+			WindowManager wm = null;
+			try {
+				wm = (WindowManager) ctx.getSystemService(Context.WINDOW_SERVICE);
+				Point p = new Point();
+				wm.getDefaultDisplay().getSize(p);
+				return width ? p.x : p.y;
+			}
+			catch(NoSuchMethodError nsm) {
+				Display d = wm.getDefaultDisplay();
+				return width ? d.getWidth() : d.getHeight();
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			return 0;
+		}
 	}
 
 	private boolean thisSlideAllowed(float dx) {
