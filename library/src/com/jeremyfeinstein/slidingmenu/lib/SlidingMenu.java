@@ -14,7 +14,6 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.os.Handler;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
@@ -723,15 +722,6 @@ public class SlidingMenu extends RelativeLayout {
 		mViewAbove.setTouchMode(i);
 	}
 
-	public void setSecondaryTouchModeAbove(int i) {
-		if (i != TOUCHMODE_FULLSCREEN && i != TOUCHMODE_MARGIN
-				&& i != TOUCHMODE_NONE) {
-			throw new IllegalStateException("TouchMode must be set to either" +
-													"TOUCHMODE_FULLSCREEN or TOUCHMODE_MARGIN or TOUCHMODE_NONE.");
-		}
-		mViewAbove.setSecondaryMenuTouchMode(i);
-	}
-
 	/**
 	 * Controls whether the SlidingMenu can be opened with a swipe gesture.
 	 * Options are {@link #TOUCHMODE_MARGIN TOUCHMODE_MARGIN}, {@link #TOUCHMODE_FULLSCREEN TOUCHMODE_FULLSCREEN},
@@ -747,15 +737,6 @@ public class SlidingMenu extends RelativeLayout {
 		}
 		mViewBehind.setTouchMode(i);
 	}
-
-	/*public void setSecondaryTouchModeBehind(int i) {
-		if (i != TOUCHMODE_FULLSCREEN && i != TOUCHMODE_MARGIN
-				&& i != TOUCHMODE_NONE) {
-			throw new IllegalStateException("TouchMode must be set to either" +
-													"TOUCHMODE_FULLSCREEN or TOUCHMODE_MARGIN or TOUCHMODE_NONE.");
-		}
-		mViewBehind.setSecondaryMenuTouchMode(i);
-	}*/
 
 	/**
 	 * Sets the shadow drawable.
